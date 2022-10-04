@@ -1,0 +1,11 @@
+/.ssh 
+/.vagrant
+.vagrant
+.directory
+/.directory
+*.gz
+*.zip
+*.sql
+token.txt
+id_rsa
+id_rsa.pub

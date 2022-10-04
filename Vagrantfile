@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
 vms = {
   'testing' => {'memory' => '2048', 'cpus' => 1, 'ip' => '50', 'box' => 'almalinux/8', 'provision' => 'provisionamento/testing.yaml'},
   'automation' => {'memory' => '2048', 'cpus' => 1, 'ip' => '60', 'box' => 'almalinux/8','provision' => 'provisionamento/automation.yaml'}
@@ -10,9 +12,9 @@ Vagrant.configure('2') do |config|
 
   config.vm.box_check_update = false
 
-        if !(File.exists?('id_rsa'))
-          system("ssh-keygen -b 2048 -t rsa -f id_rsa -q -N ''")
-       end
+    if !(File.exists?('id_rsa'))
+      system("ssh-keygen -b 2048 -t rsa -f id_rsa -q -N ''")
+    end
 
   vms.each do |name, conf|
     config.vm.define "#{name}" do |k|
@@ -25,6 +27,12 @@ Vagrant.configure('2') do |config|
         vb.memory = conf['memory']
         vb.cpus = conf['cpus']
         
+      end
+      k.vm.provider 'libvirt' do |lv|
+        lv.cpus = conf['cpus']
+        lv.memory = conf['memory']
+        lv.default_prefix = conf["name"]
+        lv.cputopology :sockets => 1, :cores => conf['cpus'], :threads => 1
       end
       k.vm.provision 'ansible_local' do |ansible|
         ansible.playbook = "#{conf['provision']}"
